@@ -1,0 +1,116 @@
+#!/usr/bin/python
+"""Read Teamspeak 3 stats from a server"""
+
+import sys
+import telnetlib
+import re
+import os
+
+sep = re.compile("\n\r?")
+
+class Server:
+
+    infoRe = re.compile("""^virtualserver_id=(.*?)\svirtualserver_port=(.*?)\svirtualserver_status=(.*?)\svirtualserver_clientsonline=(.*?)\svirtualserver_queryclientsonline=(.*?)\svirtualserver_maxclients=(.*?)\svirtualserver_uptime=(.*?)\svirtualserver_name=(.*?)\svirtualserver_autostart=(.*?)\svirtualserver_machine_id$""")
+
+    def __init__(self, infoString):
+        m = Server.infoRe.match(infoString)
+        if not m:
+            raise ValueError
+        self.id = m.group(1)
+        self.port = m.group(2)
+        self.online = m.group(3)
+        self.totalClients = int(m.group(4))
+        self.queryClients = int(m.group(5))
+        self.chatClients = self.totalClients - self.queryClients
+        self.maxClients = m.group(6)
+        self.uptime = m.group(7)
+        self.name = m.group(8).replace("""\s""", " ")
+        self.autostart = m.group(9)
+
+class Channel:
+
+    infoRe = re.compile("""^cid=(.*?)\spid=(.*?)\schannel_order=(.*?)\schannel_name=(.*?)\stotal_clients=(.*?)\schannel_needed_subscribe_power=(.*?)$""")
+    detailRe = re.compile("^.*\schannel_flag_default=(.*?)\s.*$")
+
+    def __init__(self, infoString):
+        m = Channel.infoRe.match(infoString)
+        if not m:
+            raise ValueError
+        self.id = m.group(1)
+        self.pid = m.group(2)
+        self.order = m.group(3)
+        self.name = m.group(4).replace("""\s""", " ")
+        self.clients = int(m.group(5))
+        if self.clients > 0:
+            detailInfo = sendCommand("channelinfo cid=%s" % self.id)
+            md = Channel.detailRe.match(detailInfo)
+            if not md:
+                raise ValueError
+            if "1" == md.group(1):
+                self.clients = self.clients - 1
+            
+def sendCommand(command):
+    tn.write(command + "\n")
+    (idx, dummy, response) = tn.expect(["error id=0.*\n\r?","error id=[^0].*\n\r?"],5)
+    if not idx == 0:
+        raise IOError
+    return sep.split(response)[0]
+
+def getServers():
+    serversString = sendCommand("serverlist")
+    servers = []
+    for serverString in serversString.split("|"):
+        servers.append(Server(serverString))
+    return servers
+
+def getChannels(serverId):
+    sendCommand("use " + str(serverId))
+    channelsString = sendCommand("channellist")
+    channels = []
+    for channelString in channelsString.split("|"):
+        channels.append(Channel(channelString))
+    return channels
+
+def printGraphDesc(server, channels):
+    print "multigraph teamspeak_virtual_server_%s" % server.id
+    print "graph_title Total users in channels"
+    print "graph_order %s" % " ".join("chan_%s" % str(chan.id) for chan in sorted(channels, key=lambda channel: channel.name))
+    print "graph_vlabel Users in channel"
+    print "graph_category Teamspeak3"
+    for chan in channels:
+        prefix = "chan_%s" % str(chan.id)
+        print prefix+".label %s" % chan.name
+
+def printGraphValues(server, channels):
+    print "multigraph teamspeak_virtual_server_%s" % server.id
+    for chan in channels:
+        prefix = "chan_%s" % str(chan.id)
+        print prefix+".value %s" % chan.clients
+    
+HOST = os.getenv("teamspeak_host","localhost")
+PORT = os.getenv("teamspeak_port", 10011)
+
+query_user = os.getenv("teamspeak_query_user","serveradmin")
+query_user_password = os.getenv("teamspeak_query_user_password", "")
+
+tn = telnetlib.Telnet(HOST, int(PORT), 5)
+tn.set_debuglevel(0)
+
+tn.read_until("for information on a specific command.\n", 5)
+sendCommand("login client_login_name=" + query_user + " client_login_password=" + query_user_password)
+# stats = sendCommand("serverinfo")
+serverChannels = {}
+for server in getServers():
+    serverChannels[server] = getChannels(server.id)
+
+tn.close()    
+
+if (len(sys.argv) > 1):
+    if( sys.argv[1] == 'config' ):
+        for (server,channels) in serverChannels.items():
+            printGraphDesc(server,channels)
+else:
+    for (server,channels) in serverChannels.items():
+        printGraphValues(server,channels)
+
+
