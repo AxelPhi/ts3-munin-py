@@ -3,6 +3,10 @@
 """Read Teamspeak 3 stats from a server"""
 
 import sys
+# Try to set this to UTF8 properly
+reload(sys)
+sys.setdefaultencoding("utf-8")
+
 import telnetlib
 import re
 import os
@@ -52,8 +56,13 @@ class Channel:
 
 def unescape(escaped):
     result = escaped
-    for (a,b) in [("""\s""", " "), ("""\p""", "|")]:
+    for (a,b) in [
+        ("""\s""", " "), 
+        ("""\p""", "|")]:
         result = result.replace(a,b)
+    for (a,b) in [
+        (r'\[.*?spacer\d+\]',r'')]:
+        result = re.sub(a,b,result)
     return result
             
 def sendCommand(command):
@@ -81,7 +90,7 @@ def getChannels(serverId):
 def printGraphDesc(server, channels):
     print "multigraph teamspeak_virtual_server_%s" % server.id
     print "graph_title Users on %s" % server.name
-    print "graph_order %s" % " ".join("chan_%s" % str(chan.id) for chan in sorted(channels, key=lambda channel: channel.name))
+    print "graph_order %s" % " ".join("chan_%s" % str(chan.id) for chan in sorted(channels, key=lambda channel: channel.name.encode('ascii', 'replace')))
     print "graph_vlabel Users in channel"
     print "graph_category Teamspeak3"
     for chan in channels:
@@ -93,6 +102,12 @@ def printGraphValues(server, channels):
     for chan in channels:
         prefix = "chan_%s" % str(chan.id)
         print prefix+".value %s" % chan.clients
+
+def runChannelsMode(server, channels):
+    pass
+
+def runServersMode(servers):
+    pass
     
 HOST = os.getenv("teamspeak_host","localhost")
 PORT = os.getenv("teamspeak_port", 10011)
@@ -111,6 +126,9 @@ for server in getServers():
     serverChannels[server] = getChannels(server.id)
 
 tn.close()    
+
+scriptMode = os.path.basename(sys.argv[0])
+
 
 if (len(sys.argv) > 1):
     if( sys.argv[1] == 'config' ):
