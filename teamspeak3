@@ -90,7 +90,7 @@ def getChannels(serverId):
 def printGraphDesc(server, channels):
     print "multigraph teamspeak_virtual_server_%s" % server.id
     print "graph_title Users on %s" % server.name
-    print "graph_order %s" % " ".join("chan_%s" % str(chan.id) for chan in sorted(channels, key=lambda channel: channel.name.encode('ascii', 'replace')))
+    print "graph_order %s" % " ".join("chan_%s" % str(chan.id) for chan in channels)
     print "graph_vlabel Users in channel"
     print "graph_category Teamspeak3"
     for chan in channels:
