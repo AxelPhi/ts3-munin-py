@@ -3,10 +3,6 @@
 """Read Teamspeak 3 stats from a server"""
 
 import sys
-# Try to set this to UTF8 properly
-reload(sys)
-sys.setdefaultencoding("utf-8")
-
 import telnetlib
 import re
 import os
@@ -55,7 +51,7 @@ class Channel:
                 self.clients = self.clients - 1
 
 def unescape(escaped):
-    result = escaped
+    result = escaped.decode('utf-8')
     for (a,b) in [
         ("""\s""", " "), 
         ("""\p""", "|")]:
@@ -63,7 +59,7 @@ def unescape(escaped):
     for (a,b) in [
         (r'\[.*?spacer\d+\]',r'')]:
         result = re.sub(a,b,result)
-    return result
+    return result.encode('iso8859-1', 'replace')
             
 def sendCommand(command):
     tn.write(command + "\n")
@@ -88,20 +84,20 @@ def getChannels(serverId):
     return channels
 
 def printGraphDesc(server, channels):
-    print "multigraph teamspeak_virtual_server_%s" % server.id
-    print "graph_title Users on %s" % server.name
-    print "graph_order %s" % " ".join("chan_%s" % str(chan.id) for chan in channels)
-    print "graph_vlabel Users in channel"
-    print "graph_category Teamspeak3"
+    print (u'multigraph teamspeak_virtual_server_%s' % server.id)
+    print (u"graph_title Users on %s" % server.name)
+    print (u"graph_order %s" % " ".join("chan_%s" % str(chan.id) for chan in channels))
+    print (u"graph_vlabel Users in channel")
+    print (u"graph_category Teamspeak3")
     for chan in channels:
-        prefix = "chan_%s" % str(chan.id)
-        print prefix+".label %s" % chan.name
+        prefix = u"chan_%s" % str(chan.id)
+        print (prefix+".label %s" % chan.name)
 
 def printGraphValues(server, channels):
-    print "multigraph teamspeak_virtual_server_%s" % server.id
+    print (u"multigraph teamspeak_virtual_server_%s" % server.id)
     for chan in channels:
         prefix = "chan_%s" % str(chan.id)
-        print prefix+".value %s" % chan.clients
+        print (prefix+u".value %s" % chan.clients)
 
 def runChannelsMode(server, channels):
     pass
