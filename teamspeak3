@@ -59,7 +59,10 @@ def unescape(escaped):
     for (a,b) in [
         (r'\[.*?spacer\d+\]',r'')]:
         result = re.sub(a,b,result)
-    return result.encode('iso8859-1', 'replace')
+    return result
+
+def conPrint(s):
+    print s.encode('utf-8')
             
 def sendCommand(command):
     tn.write(command + "\n")
@@ -84,20 +87,20 @@ def getChannels(serverId):
     return channels
 
 def printGraphDesc(server, channels):
-    print (u'multigraph teamspeak_virtual_server_%s' % server.id)
-    print (u"graph_title Users on %s" % server.name)
-    print (u"graph_order %s" % " ".join("chan_%s" % str(chan.id) for chan in channels))
-    print (u"graph_vlabel Users in channel")
-    print (u"graph_category Teamspeak3")
+    conPrint(u'multigraph teamspeak_virtual_server_%s' % server.id)
+    conPrint(u"graph_title Users on %s" % server.name)
+    conPrint(u"graph_order %s" % " ".join("chan_%s" % str(chan.id) for chan in channels))
+    conPrint(u"graph_vlabel Users in channel")
+    conPrint(u"graph_category Teamspeak3")
     for chan in channels:
-        prefix = u"chan_%s" % str(chan.id)
-        print (prefix+".label %s" % chan.name)
+        prefix = unicode('chan_%s') % chan.id
+        conPrint(unicode("%s.label %s") % (prefix, chan.name))
 
 def printGraphValues(server, channels):
-    print (u"multigraph teamspeak_virtual_server_%s" % server.id)
+    conPrint(u"multigraph teamspeak_virtual_server_%s" % server.id)
     for chan in channels:
-        prefix = "chan_%s" % str(chan.id)
-        print (prefix+u".value %s" % chan.clients)
+        prefix = unicode("chan_%s") % chan.id
+        conPrint(unicode("%s.value %s") % (prefix, chan.clients))
 
 def runChannelsMode(server, channels):
     pass
@@ -123,8 +126,7 @@ for server in getServers():
 
 tn.close()    
 
-scriptMode = os.path.basename(sys.argv[0])
-
+# scriptMode = os.path.basename(sys.argv[0])
 
 if (len(sys.argv) > 1):
     if( sys.argv[1] == 'config' ):
