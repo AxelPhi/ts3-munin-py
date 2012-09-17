@@ -23,12 +23,12 @@ Install
 
 Copy the teamspeak3 script to a safe location where it won't interfere with package managements. e.g.
 
- sudo mkdir -p /usr/local/share/munin/plugins
- sudo cp teamspeak3 /usr/local/share/munin/plugins
+    sudo mkdir -p /usr/local/share/munin/plugins
+    sudo cp teamspeak3 /usr/local/share/munin/plugins
 
 If your munin installation has set up a munin user, set the permissions accordingly. e.g.
 
- su chown -R munin:munin /usr/local/share/munin/
+    su chown -R munin:munin /usr/local/share/munin/
 
 This script has two different modes. One displays the total users of all vhosts on your server, the
 other one shows the users per channel in individual graphs per vhost.
@@ -37,15 +37,15 @@ Both use the same script file and the selection is made via the script's executi
 
 To install the users per vhosts mode use:
 
-  ln -sf /usr/local/share/plugins/teamspeak3 /etc/munin/plugins/teamspeak3_vhosts
+    ln -sf /usr/local/share/plugins/teamspeak3 /etc/munin/plugins/teamspeak3_vhosts
 
 To install the users per channel per vhosts mode use:
 
-   ln -sf /usr/local/share/plugins/teamspeak3 /etc/munin/plugins/teamspeak3
+     ln -sf /usr/local/share/plugins/teamspeak3 /etc/munin/plugins/teamspeak3
 
 Make sure to restart munin-node afterwards.
 
-  sudo /etc/init.d/munin-node restart
+    sudo /etc/init.d/munin-node restart
 
 Config
 ------
