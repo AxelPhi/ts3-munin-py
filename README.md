@@ -41,7 +41,7 @@ To install the users per vhosts mode use:
 
 To install the users per channel per vhosts mode use:
 
-     ln -sf /usr/local/share/plugins/teamspeak3 /etc/munin/plugins/teamspeak3
+    ln -sf /usr/local/share/plugins/teamspeak3 /etc/munin/plugins/teamspeak3
 
 Make sure to restart munin-node afterwards.
 
