@@ -62,3 +62,18 @@ to
 
     /etc/munin/plugin-conf.d/munin-node
 
+Virtual Servers that are set to "offline" can be hidden by changing
+the following line in the script.
+
+    # Set this to "True" if you want offline virtual
+    # servers to disappear from the graph overview.
+    hide_offline_servers=False
+
+to
+
+    # Set this to "True" if you want offline virtual
+    # servers to disappear from the graph overview.
+    hide_offline_servers=True
+
+
+
