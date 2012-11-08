@@ -9,6 +9,8 @@ import os
 
 sep = re.compile("\n\r?")
 
+# Set this to "True" if you want offline virtual
+# servers to disappear from the graph overview.
 hide_offline_servers=False
 
 class Server:
