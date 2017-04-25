@@ -15,9 +15,9 @@ hide_offline_servers=False
 
 class Server:
 
-    infoOnlineRe = re.compile("""^virtualserver_id=(.*?)\svirtualserver_port=(.*?)\svirtualserver_status=(.*?)\svirtualserver_clientsonline=(.*?)\svirtualserver_queryclientsonline=(.*?)\svirtualserver_maxclients=(.*?)\svirtualserver_uptime=(.*?)\svirtualserver_name=(.*?)\svirtualserver_autostart=(.*?)\svirtualserver_machine_id$""")
+    infoOnlineRe = re.compile("""^virtualserver_id=(.*?)\svirtualserver_port=(.*?)\svirtualserver_status=(.*?)\svirtualserver_clientsonline=(.*?)\svirtualserver_queryclientsonline=(.*?)\svirtualserver_maxclients=(.*?)\svirtualserver_uptime=(.*?)\svirtualserver_name=(.*?)\svirtualserver_autostart=(.*?)\svirtualserver_machine_id=(.*?)$""")
 
-    infoOfflineRe = re.compile("""^virtualserver_id=(.*?)\svirtualserver_port=(.*?)\svirtualserver_status=(.*?)\svirtualserver_name=(.*?)\svirtualserver_autostart=(.*?)\svirtualserver_machine_id$""")
+    infoOfflineRe = re.compile("""^virtualserver_id=(.*?)\svirtualserver_port=(.*?)\svirtualserver_status=(.*?)\svirtualserver_name=(.*?)\svirtualserver_autostart=(.*?)\svirtualserver_machine_id=(.*?)$""")
 
     def __init__(self, infoString):
         m = Server.infoOnlineRe.match(infoString)
